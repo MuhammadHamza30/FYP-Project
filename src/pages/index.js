@@ -1,0 +1,26 @@
+// Player Pages
+export { Home } from "./home";
+export { Trainers } from "./trainers";
+export {  Doctors } from "./doctors";
+export { Registeration } from "./register";
+export { Login } from "./login";
+export { Updates } from "./Admin/updates";
+export { AdminLogin } from "./Admin/login";
+export { Tournments } from "./Admin/tournments";
+export { DoctorDashboard } from "./Doctor/dashboard";
+export { Players as DoctorPlayers } from "./Doctor/players";
+export { Health as DoctorHealth } from "./Doctor/health";
+export { DocctorSettings } from "./Doctor/settings";
+export { PlayerDashboard } from "./Player/dashboard";
+export { Health } from "./Player/health";
+export { AiHelper } from "./Player/aiHelper";
+export { TrainerDashboard } from "./Trainer/dashboard";
+export { Players } from "./Admin/player";
+export { Trainers as AdminTrainers } from "./Admin/trainers";
+export { Doctors as AdminDoctors } from "./Admin/doctors";
+export { Trainers as PlayerTrainers } from "./Player/trainer";
+export { Doctors as PlayerDoctors } from "./Player/doctors";
+export { PlayerSettings } from "./Player/settings";
+export { Players as TrainerPlayers } from "./Trainer/players";
+export { TrainerSettings } from "./Trainer/settings";
+export { Health as TrainerHealth } from "./Trainer/health";
