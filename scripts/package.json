@@ -1,0 +1,9 @@
+{
+  "name": "spms-admin-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Optional trusted migration tooling; never shipped to the browser.",
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
