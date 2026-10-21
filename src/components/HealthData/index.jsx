@@ -1,95 +1,136 @@
-import React, { useEffect, useState } from 'react';
-import { PiHeartbeatFill } from "react-icons/pi";
-import { HeartbeatIcon } from '../HearthbeatIcon';
-import { IoFootstepsSharp } from "react-icons/io5";
-import { FaTemperatureHigh } from "react-icons/fa";
-import { GrBarChart } from "react-icons/gr";
-import { Form } from 'react-bootstrap';
-import { Table } from 'react-bootstrap';
-import { generateRandomData } from '../../utils';
-import { StepsIcon } from '../../Assets/steps';
-import { TemperatureIcon } from '../../Assets/temperature';
-
-export const HealthData = () => {
-
-	const [data, setData] = useState([]);
-
-	useEffect(() => {
-		const res = generateRandomData();
-		setData(res);
-
-	}, []);
-	return <>
-		<div className='d-flex justify-content-between dashboard-cards-container'>
-			<div className="card bg-gray p-2">
-				<div className='d-flex justify-content-center align-items-center gap-2'>
-					<PiHeartbeatFill fontSize={50} />
-					<span>Heartbeat</span>
-				</div>
-				<h6 className='mx-5'>{data[0]?.heartBeat} bpm</h6>
-				<div>
-					<HeartbeatIcon />
-				</div>
-			</div>
-			<div className="card bg-gray p-2">
-				<div className='d-flex justify-content-center align-items-center gap-2'>
-					<IoFootstepsSharp fontSize={50} />
-					<span>Steps</span>
-				</div>
-				<h6 className='mx-5'>{data[0]?.steps}</h6>
-				<div>
-					<StepsIcon />
-				</div>
-			</div>
-			<div className="card bg-gray p-2">
-				<div className='d-flex justify-content-center align-items-center gap-2'>
-					<FaTemperatureHigh fontSize={50} />
-					<span>Temperature</span>
-				</div>
-				<h6 className='mx-5'>{data[0]?.temperature}</h6>
-				<div>
-					<TemperatureIcon />
-				</div>
-			</div>
-		</div>
-		<div className='dashboard-img-container'>
-			<div>
-				<h4 className='my-3'>Sleep</h4>
-				<h4 className='mx-5 my-4'>8 Hour</h4>
-			</div>
-			<div>
-				<GrBarChart fontSize={50} />
-			</div>
-		</div>
-
-		<Form.Group className="mb-3 d-flex align-items-center  justify-content-center gap-3">
-			<Form.Label style={{ fontWeight: "bold" }}>Search By Date:</Form.Label>
-			<Form.Control type="date" className='bg-gray' style={{ maxWidth: "300px" }} />
-		</Form.Group>
-
-		<Table bordered hover>
-			<thead>
-				<tr>
-					<th>S.No</th>
-					<th>Date</th>
-					<th>Heartbeat</th>
-					<th>Steps</th>
-					<th>Temperature</th>
-				</tr>
-			</thead>
-			<tbody>
-				{
-					data.map((it , index ) => (
-						<tr>
-							<td>{index + 1}</td>
-							<td>{it.date}</td>
-							<td>{it.heartBeat}</td>
-							<td>{it.steps}</td>
-							<td>{it.temperature}</td>
-						</tr>
-					))
-				}
-			</tbody>
-		</Table>
-	</>
-}
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { getUser } from "../../APIS";
+import { FiHeart, FiActivity, FiThermometer } from "react-icons/fi";
+export const HealthData = ({ playerId }) => {
+  const { user } = useSelector((s) => s.user);
+  const [records, setRecords] = useState([]);
+  const [date, setDate] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError("");
+    getUser(playerId || user?.docId)
+      .then((profile) => {
+        if (!profile) throw new Error("Player not found");
+        if (active)
+          setRecords(
+            Array.isArray(profile.healthRecords) ? profile.healthRecords : [],
+          );
+      })
+      .catch(() => {
+        if (active) setError("Unable to load health records.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [playerId, user?.docId]);
+  const sorted = [...records].sort((a, b) =>
+    String(b.date).localeCompare(String(a.date)),
+  );
+  const filtered = date
+    ? sorted.filter((row) => String(row.date).slice(0, 10) === date)
+    : sorted;
+  const latest = filtered[0];
+  return (
+    <>
+      <div className="page-heading">
+        <div>
+          <span className="eyebrow">PLAYER WELLBEING</span>
+          <h1>Health overview</h1>
+          <p>Recorded measurements and feedback from your support team.</p>
+        </div>
+      </div>
+      <div className="stat-grid">
+        {[
+          ["Heart rate", latest?.heartBeat, "bpm", FiHeart],
+          ["Steps", latest?.steps, "steps", FiActivity],
+          ["Temperature", latest?.temperature, "°F", FiThermometer],
+        ].map(([label, value, unit, Icon]) => (
+          <article className="stat-card" key={label}>
+            <div>
+              <p>{label}</p>
+              <strong>{loading ? "…" : (value ?? "—")}</strong>
+              <small>{value != null ? unit : "No recorded measurement"}</small>
+            </div>
+            <span className="feature-icon">
+              <Icon />
+            </span>
+          </article>
+        ))}
+      </div>
+      <section className="panel">
+        <div className="panel-heading flex-wrap gap-3">
+          <h3>Measurement history</h3>
+          <div className="d-flex gap-2 align-items-center">
+            <label htmlFor="health-date">Filter by date</label>
+            <input
+              id="health-date"
+              type="date"
+              className="form-control"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+            {date && (
+              <button
+                className="btn outline-button"
+                onClick={() => setDate("")}
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+        {error ? (
+          <div className="alert alert-danger" role="alert">
+            {error}
+          </div>
+        ) : loading ? (
+          <p role="status">Loading records…</p>
+        ) : (
+          <div className="table-responsive">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Heart rate (bpm)</th>
+                  <th>Steps</th>
+                  <th>Temperature (°F)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((row, index) => (
+                  <tr key={`${row.date}-${index}`}>
+                    <td>{row.date}</td>
+                    <td>{row.heartBeat ?? "—"}</td>
+                    <td>{row.steps ?? "—"}</td>
+                    <td>{row.temperature ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {!filtered.length && (
+              <div className="empty-state">
+                <FiActivity />
+                <h4>
+                  {date
+                    ? "No records for this date"
+                    : "No measurements recorded yet"}
+                </h4>
+                <p>
+                  Health records will appear when a data source is connected. No
+                  sensor integration is included in this project.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+    </>
+  );
+};

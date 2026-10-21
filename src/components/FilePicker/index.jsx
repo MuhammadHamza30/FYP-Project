@@ -1,25 +1,27 @@
-import { Container, Form } from "react-bootstrap";
-
-export const FileInput = (props) => {
-  return (
-    <Container>
-      <Form.Group className="mb-3">
-        <Form.Label htmlFor={props.name}>{props.label}</Form.Label>
-        <Container className="file-container btn btn-lg secondary-button">
-          {props.loading ? (
-            <div className="spinner-grow text-light" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          ) : "Upload"
-          }
-          <input
-            type="file"
-            id={props.name}
-            onChange={(e) => props.changeHandler?.(props.name, e.target.files?.[0])}
-            accept="image/*"
-          />
-        </Container>
-      </Form.Group>
-    </Container>
-  );
-};
+import { Form } from "react-bootstrap";
+import { toast } from "react-toastify";
+export const FileInput = ({ name, label, loading, changeHandler }) => (
+  <Form.Group className="mb-3">
+    <Form.Label htmlFor={name}>{label}</Form.Label>
+    <Form.Control
+      id={name}
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      disabled={loading}
+      onChange={(event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        if (
+          !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
+          file.size > 5 * 1024 * 1024
+        ) {
+          toast.error("Choose a JPG, PNG, or WebP image under 5 MB.");
+          event.target.value = "";
+          return;
+        }
+        changeHandler?.(name, file);
+      }}
+    />
+    {loading && <small role="status">Uploading image…</small>}
+  </Form.Group>
+);

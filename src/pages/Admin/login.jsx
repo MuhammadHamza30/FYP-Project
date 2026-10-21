@@ -1,87 +1,73 @@
 import { useState } from "react";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
-import { Input } from "../../components";
-import { toast } from "react-toastify";
-import { Button, Card, Container } from "react-bootstrap";
-import Spinner from "react-bootstrap/Spinner";
-import { useNavigate } from "react-router-dom";
+import { Input, Navbar } from "../../components";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { loginAdmin } from "../../APIS";
-// import { loginAdmin } from "../APIS";
-
+import { readSession } from "../../utils/session";
 export const AdminLogin = () => {
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
-  const [state] = useState({
-    email: "",
-    password: "",
-  });
-
-  const admmin = sessionStorage.getItem("spms-admin");
-
-  const validations = yup.object().shape({
-    email: yup.string().email().required(),
-    password: yup.string().min(6).required(),
-  });
-
-  const handleSubmit = async (values) => {
-    try {
-      setLoading(true);
-      const res = await loginAdmin(values);
-      if (res) {
-        const payload = {
-          isAuthenticated: true,
-        };
-        sessionStorage.setItem("spms-admin", JSON.stringify(payload))
-        navigate("/admin/updates");
-        toast.success("Login successfully!");
-      }
-      setLoading(false);
-    } catch (error ) {
-      setLoading(false);
-      toast.error(error?.message);
-    }
-  };
-
-  if (admmin) {
-    navigate("/admin/updates");
-    return <></>;
-  }
-
+  if (readSession("spms-admin")?.isAuthenticated)
+    return <Navigate to="/admin/updates" replace />;
   return (
-    <Container className="login-container">
-      <Card>
-        <Card.Body>
+    <>
+      <Navbar />
+      <main className="admin-login">
+        <section className="panel">
+          <span className="eyebrow">CLUB MANAGEMENT</span>
+          <h1>Administrator access</h1>
+          <p>Manage your community, tournaments, and announcements.</p>
           <Formik
-            initialValues={state}
-            validationSchema={validations}
-            onSubmit={handleSubmit}
+            initialValues={{ email: "", password: "" }}
+            validationSchema={yup.object({
+              email: yup.string().email().required(),
+              password: yup.string().required(),
+            })}
+            onSubmit={async (values) => {
+              try {
+                setError("");
+                await loginAdmin(values);
+                navigate("/admin/updates", { replace: true });
+              } catch (e) {
+                setError(e.message);
+              }
+            }}
           >
-            {() => (
-              <>
-                <Form>
-                  <h3 className="mb-4">Admin Login</h3>
-                  <Input
-                    name="email"
-                    type="email"
-                    label="Email"
-                    placeholder="Enter your email"
-                  />
-                  <Input
-                    label="Password"
-                    name="password"
-                    placeholder="Enter password"
-                    type="password"
-                  />
-                  <Button type="submit" className="btn primary-button mt-3 px-5">
-                    {loading ? <Spinner animation="grow" /> : "Login"}
-                  </Button>
-                </Form>
-              </>
+            {({ isSubmitting }) => (
+              <Form>
+                {error && (
+                  <div className="alert alert-danger" role="alert">
+                    {error}
+                  </div>
+                )}
+                <Input
+                  name="email"
+                  label="Email address"
+                  type="email"
+                  autoComplete="email"
+                />
+                <Input
+                  name="password"
+                  label="Password"
+                  type="password"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn primary-button w-100"
+                >
+                  {isSubmitting ? "Signing in…" : "Sign in as administrator"}
+                </button>
+              </Form>
             )}
           </Formik>
-        </Card.Body>
-      </Card>
-    </Container>
+          <Link to="/login" className="subtle-link">
+            Back to member sign in
+          </Link>
+        </section>
+      </main>
+    </>
   );
 };

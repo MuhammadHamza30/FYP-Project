@@ -1,67 +1,39 @@
-import { Col, Container, Row } from "react-bootstrap"
-import { GmailIcon } from "../../Assets/gmail"
-import { FacebookIcon } from "../../Assets/facebook"
-import { TwitterIcon } from "../../Assets/twitter"
-import { WhatsappIcon } from "../../Assets/whatsapp"
-import { CopyRight } from "./copyRight"
-
-export const Footer = () => {
-
-	return (
-		<footer className="text-white">
-			<div className="bg-light text-dark py-5">
-				<Container>
-					<Row className="footer-links">
-						<Col md={6} className="mb-3 mb-md-0">
-							<h1 className="m-0 fw-bold">SPMS</h1>
-							<p className="mb-1">Squash Player Management System</p>
-							<ul className="list-unstyled">
-								<li>
-									<GmailIcon />
-									<span className="fw-500">Gmail</span>
-								</li>
-								<li>
-									<FacebookIcon />
-									<span className="fw-500">Facebook</span>
-								</li>
-								<li>
-									<TwitterIcon />
-									<span className="fw-500">Twitter</span>
-								</li>
-								<li>
-									<WhatsappIcon />
-									<span className="fw-500">WhatsApp</span>
-								</li>
-							</ul>
-						</Col>
-						<Col md={2} className="mb-3 mb-md-0">
-							<h5>About Us</h5>
-							<ul className="list-unstyled">
-								<li className="mb-2"><a href="#home" className="text-white">Our Story</a></li>
-								<li  className="mb-2"><a href="#features" className="text-white">Our Team</a></li>
-								<li  className="mb-2"><a href="#pricing" className="text-white">Careers</a></li>
-							</ul>
-						</Col>
-						<Col md={2}>
-							<h5>Staff</h5>
-							<ul className="list-unstyled">
-								<li  className="mb-2"><a href="#services" className="text-white">Players</a></li>
-								<li  className="mb-2"><a href="#portfolio" className="text-white">Trainers</a></li>
-								<li  className="mb-2"><a href="#team" className="text-white">Doctors</a></li>
-							</ul>
-						</Col>
-						<Col md={2}>
-							<h5>Contact</h5>
-							<ul className="list-unstyled">
-								<li  className="mb-2"><a href="#services" className="text-white">Contact us</a></li>
-								<li  className="mb-2"><a href="#services" className="text-white">Location</a></li>
-								<li  className="mb-2"><a href="#services" className="text-white">Feedbacks</a></li>
-							</ul>
-						</Col>
-					</Row>
-				</Container>
-			</div>
-			<CopyRight />
-		</footer>
-	)
-}
+import { Link } from "react-router-dom";
+import { Container } from "react-bootstrap";
+import { GiTennisRacket } from "react-icons/gi";
+export const Footer = () => (
+  <footer className="public-footer">
+    <Container>
+      <div className="footer-main">
+        <div>
+          <Link className="brand" to="/">
+            <span className="brand-mark">
+              <GiTennisRacket />
+            </span>
+            SPMS
+          </Link>
+          <p>
+            A connected space for players,
+            <br />
+            trainers, and better support.
+          </p>
+        </div>
+        <div>
+          <small>EXPLORE</small>
+          <Link to="/trainers">Find a trainer</Link>
+          <Link to="/doctors">Meet the doctors</Link>
+        </div>
+        <div>
+          <small>YOUR ACCOUNT</small>
+          <Link to="/register">Join SPMS</Link>
+          <Link to="/login">Sign in</Link>
+          <Link to="/admin">Administrator access</Link>
+        </div>
+      </div>
+      <div className="footer-bottom">
+        © {new Date().getFullYear()} SPMS. All rights reserved.
+        <span>Made for squash.</span>
+      </div>
+    </Container>
+  </footer>
+);

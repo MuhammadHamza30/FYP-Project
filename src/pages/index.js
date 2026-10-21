@@ -1,7 +1,7 @@
 // Player Pages
 export { Home } from "./home";
 export { Trainers } from "./trainers";
-export {  Doctors } from "./doctors";
+export { Doctors } from "./doctors";
 export { Registeration } from "./register";
 export { Login } from "./login";
 export { Updates } from "./Admin/updates";
